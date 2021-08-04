@@ -54,7 +54,8 @@ SAMPLE_SECONDS_BEFORE_TURN_OFF = 15
 CHECK_NUMBER_BEFORE_TURN_OFF = int(SAMPLE_SECONDS_BEFORE_TURN_OFF / SAMPLE_SECONDS_BEFORE_CHECK)
 # The number of checks which have to pass before audio is turned on.
 CHECK_NUMBER_BEFORE_TURN_ON = 3
-
+# Snapcast server fifo pipe
+SNAPFIFO = "/tmp/snapfifo"
 
 def open_sound(output=False):
     input_device = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NONBLOCK, device=DEVICE_NAME)
@@ -64,8 +65,8 @@ def open_sound(output=False):
     input_device.setperiodsize(PERIOD_SIZE)
 
     if output:
-        # If snapserver enabled locally output to snapfifo file for streaming
-        if os.getenv("SNAPSERVER", False):
+        # If snapserver enabled locally output to snapfifo file for streaming but check fifo exist for edge case where file could write to disk
+        if os.getenv("SNAPSERVER", False) and os.path.isfile(SNAPFIFO):
             return input_device, open("/tmp/snapfifo", "wb")
         output_device = alsaaudio.PCM(alsaaudio.PCM_PLAYBACK, alsaaudio.PCM_NONBLOCK, device=DEVICE_NAME)
         output_device.setchannels(CHANNELS)
