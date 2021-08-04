@@ -64,6 +64,9 @@ def open_sound(output=False):
     input_device.setperiodsize(PERIOD_SIZE)
 
     if output:
+        # If snapserver enabled locally output to snapfifo file for streaming
+        if os.getenv("SNAPSERVER", False):
+            return input_device, open("/tmp/snapfifo", "wb")
         output_device = alsaaudio.PCM(alsaaudio.PCM_PLAYBACK, alsaaudio.PCM_NONBLOCK, device=DEVICE_NAME)
         output_device.setchannels(CHANNELS)
         output_device.setrate(SAMPLE_RATE)
